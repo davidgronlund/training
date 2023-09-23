@@ -19,6 +19,8 @@ export class WorkoutService {
     initialValue: [],
   });
 
+  save = toSignal(this.dataService.save())
+
   logger = effect(() => {
     console.log(this.workouts());
   });
@@ -27,16 +29,13 @@ export class WorkoutService {
     return this.workouts().map((workout) => <string>workout.type);
   }
 
-  async addWorkout(workout: Workout): Promise<void> {
-    console.log(this.workouts());
+  addWorkout(workout: Workout) {
     const workouts = [...this.workouts(), workout];
 
-    this.workouts.set(workouts);
-    console.log(this.workouts());
-    await this.saveWorkouts();
+    return this.saveWorkouts(workouts);
   }
 
-  async saveWorkouts(): Promise<void> {
-    await this.dataService.save(this.workouts());
+  saveWorkouts(workouts: Workout[]) {
+    return this.dataService.save(workouts);
   }
 }

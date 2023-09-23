@@ -17,7 +17,7 @@ export class DataService {
   private apiUrl = `${environment.apiUrl}/api`;
   constructor(private http: HttpClient) {}
 
-  async save(workouts: Workout[]) {
+  save(workouts: Workout[]) {
     const json = JSON.stringify(workouts);
     const blob = new Blob([json], {
       type: 'application/json',
