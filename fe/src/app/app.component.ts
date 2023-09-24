@@ -19,149 +19,131 @@ import { HttpClientModule } from '@angular/common/http';
   styleUrls: [`./app.component.css`],
   template: `
     <main class="container is-fluid ">
-      <section class="workout">
+      <section class="workout pt-5">
         <form (ngSubmit)="save()" #workoutForm="ngForm">
-          <section class="card">
-            <div class="card-content">
-              <h1 class="title">Träningslogg</h1>
-              <div class="is-flex-direction-row">
-                <div class="control">
-                  <div class="select">
-                    <select [(ngModel)]="workout.type" name="workoutTypeSelect">
-                      <option>Välj typ av träning...</option>
-                      <option *ngFor="let workout of workoutService.workouts()">
-                        {{ workout.type }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-                <input
-                  required
-                  name="workoutType"
-                  class="input"
-                  type="text"
-                  placeholder="Typ av träning"
-                  [(ngModel)]="workout.type"
-                />
-              </div>
-              <input
-                required
-                name="workoutDate"
-                class="input"
-                type="date"
-                placeholder="Datum"
-                [(ngModel)]="workout.date"
-              />
-              <input
-                required
-                name="workoutDuration"
-                class="input"
-                type="number"
-                placeholder="Total tid (minuter)"
-                [(ngModel)]="workout.duration"
-              />
-              <input
-                name="workoutComment"
-                class="textarea"
-                type="text"
-                placeholder="Kommentar"
-                [(ngModel)]="workout.comment"
-              />
-              <button
-                [disabled]="!workoutForm.form.valid"
-                class="button"
-                type="submit"
-              >
-                Spara
-              </button>
-              <div class="has-text-info-light" *ngIf="workoutForm.submitted">
-                Sparat
+          <h1 class="title">Träningslogg</h1>
+          <div class="is-flex-direction-row">
+            <div class="control">
+              <div class="select">
+                <select [(ngModel)]="workout.type" name="workoutTypeSelect">
+                  <option>Välj typ av träning...</option>
+                  <option *ngFor="let workout of workoutService.workouts()">
+                    {{ workout.type }}
+                  </option>
+                </select>
               </div>
             </div>
-          </section>
+            <input
+              required
+              name="workoutType"
+              class="input"
+              type="text"
+              placeholder="Ny typ av träning"
+              [(ngModel)]="workout.type"
+            />
+          </div>
+          <input
+            required
+            name="workoutDate"
+            class="input"
+            type="date"
+            placeholder="Datum"
+            [(ngModel)]="workout.date"
+          />
+          <input
+            required
+            name="workoutDuration"
+            class="input"
+            type="number"
+            placeholder="Total tid (minuter)"
+            [(ngModel)]="workout.duration"
+          />
+          <input
+            name="workoutComment"
+            class="textarea"
+            type="text"
+            placeholder="Kommentar"
+            [(ngModel)]="workout.comment"
+          />
+          <button
+            [disabled]="!workoutForm.form.valid"
+            class="button"
+            type="submit"
+          >
+            Spara
+          </button>
+          <div class="has-text-info-light" *ngIf="workoutForm.submitted">
+            Sparat
+          </div>
         </form>
       </section>
-      <section class="card">
-        <div class="card-content">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Typ</th>
-                <th>
-                  <button class="has-text-link-dark" (click)="orderBy('date')">
-                    Datum
-                  </button>
-                </th>
-                <th>
-                  <button
-                    class="has-text-link-dark"
-                    (click)="orderBy('duration')"
-                  >
-                    Tid
-                  </button>
-                </th>
-                <th>Kommentar</th>
-                <th>Ändra</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let workout of workouts()">
-                <td>{{ workout.type }}</td>
-                <td>{{ workout.date }}</td>
-                <td>{{ workout.duration }} min</td>
-                <td>{{ workout.comment }}</td>
-                <td>
-                  <div class="is-flex-wrap-nowrap">
-                    <i
-                      class="button is-primary fa fa-pencil"
-                      (click)="editWorkout(workout)"
-                    >
-                      Redigera
-                    </i>
-                    <button
-                      class="button is-danger fa fa-trash"
-                      (click)="workoutService.removeWorkout(workout)"
-                    >
-                      Ta bort
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-      <!--      <section class="card mt-6">
-        <div class="card-content">
-          <h1 class="title">Historik</h1>
-          <div class="workouts">
-            <div
-              class="workout"
-              *ngFor="let workout of workoutService.workouts()"
+
+      <div class="mt-6">
+        <div
+          class=""
+          *ngFor="let workoutPerWeek of workoutService.groupWorkoutsPerWeek()"
+        >
+          <div class="workout-per-week" *ngIf="workoutPerWeek">
+            <span class="has-text-weight-bold"
+              >Vecka {{ workoutPerWeek.week }}: {{ workoutPerWeek.year }}</span
             >
-              <div class="card mb-4">
-                <div class="card-content">
-                  <h1 class="subtitle">{{ workout.type }}</h1>
-                  <p>{{ workout.date }}</p>
-                  <p>{{ workout.duration }} min</p>
-                  <p>{{ workout.comment }}</p>
-                </div>
-                <div class="card-footer">
+            <div>Antal pass: {{ workoutPerWeek.workouts.length }}</div>
+            <div>
+              Total tid:
+              {{ workoutService.getTotalDuration(workoutPerWeek.workouts) }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-container mt-6">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Typ</th>
+              <th>
+                <button class="has-text-link-dark" (click)="orderBy('date')">
+                  Datum
+                </button>
+              </th>
+              <th>
+                <button
+                  class="has-text-link-dark"
+                  (click)="orderBy('duration')"
+                >
+                  Tid
+                </button>
+              </th>
+              <th>Kommentar</th>
+              <th>Ändra</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let workout of workouts()">
+              <td>{{ workout.type }}</td>
+              <td>{{ workout.date }}</td>
+              <td>{{ workout.duration }} min</td>
+              <td>{{ workout.comment }}</td>
+              <td>
+                <div class="is-flex-wrap-nowrap">
                   <button
-                    class="button"
+                    class="button button-change fa fa-pencil"
+                    (click)="editWorkout(workout)"
+                  >
+                    Redigera
+                  </button>
+                  <button
+                    class="button button-change fa fa-trash"
                     (click)="workoutService.removeWorkout(workout)"
                   >
                     Ta bort
                   </button>
-                  <button class="button" (click)="editWorkout(workout)">
-                    Redigera
-                  </button>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>-->
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </main>
   `,
   styles: [],
