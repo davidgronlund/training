@@ -17,17 +17,29 @@ export class DataService {
   private apiUrl = `${environment.apiUrl}/api`;
   constructor(private http: HttpClient) {}
 
-  save(workouts: Workout[]) {
-    const json = JSON.stringify(workouts);
-    const blob = new Blob([json], {
+  async save(workouts: Workout[]) {
+    const json: string = JSON.stringify(workouts);
+    const blob: Blob = new Blob([json], {
       type: 'application/json',
     });
-    return this.http.post(`${this.apiUrl}/workouts`, blob);
+
+    // fetch
+
+    await fetch(`${this.apiUrl}/workouts`, {
+      method: 'POST',
+      body: blob,
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+/*    this.http.post(`${this.apiUrl}/workouts`, blob);*/
   }
 
-  load(): Observable<Workout[]> {
-    return this.http
-      .get<Workout[]>(`${this.apiUrl}/workouts`)
-      .pipe(map((workouts) => workouts || []));
+  async load(): Promise<Workout[]> {
+    const response: Response = await fetch(`${this.apiUrl}/workouts`);
+    const json = await response.json();
+    console.log(json);
+    return json as Workout[];
   }
 }

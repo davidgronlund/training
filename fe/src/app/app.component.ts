@@ -15,31 +15,30 @@ import { HttpClientModule } from '@angular/common/http';
       <section class="workout">
         <form (ngSubmit)="save()" #workoutForm="ngForm">
           <section class="card">
-            <div class="card-header">
-              <h1 class="title">Träningslogg</h1>
-            </div>
             <div class="card-content">
-              <input
-                name="workoutType"
-                class="input"
-                type="text"
-                placeholder="Träning"
-                [(ngModel)]="workout.type"
-              />
-              <div class="control">
-                <div class="select">
-                  <select [(ngModel)]="workout.type" name="workoutTypeSelect">
-                    <option>Välj...</option>
-                    <option *ngFor="let workout of workoutService.workouts()">
-                      {{ workout.type }}
-                    </option>
-                  </select>
+              <h1 class="title">Träningslogg</h1>
+              <div class="is-flex-direction-row">
+                <div class="control">
+                  <div class="select">
+                    <select [(ngModel)]="workout.type" name="workoutTypeSelect">
+                      <option>Välj typ av träning...</option>
+                      <option *ngFor="let workout of workoutService.workouts()">
+                        {{ workout.type }}
+                      </option>
+                    </select>
+                  </div>
                 </div>
+                <input
+                  required
+                  name="workoutType"
+                  class="input"
+                  type="text"
+                  placeholder="Typ av träning"
+                  [(ngModel)]="workout.type"
+                />
               </div>
-              <!--
-              <input  class="input" type="text" placeholder="Typ av träning" />
-              -->
               <input
+                required
                 name="workoutDate"
                 class="input"
                 type="date"
@@ -47,6 +46,7 @@ import { HttpClientModule } from '@angular/common/http';
                 [(ngModel)]="workout.date"
               />
               <input
+                required
                 name="workoutDuration"
                 class="input"
                 type="number"
@@ -60,28 +60,72 @@ import { HttpClientModule } from '@angular/common/http';
                 placeholder="Kommentar"
                 [(ngModel)]="workout.comment"
               />
-              <button class="button" type="submit">Lägg till träning</button>
-              <span class="has-text-danger" *ngIf="workoutForm.submitted"
-                >Sparat</span
+              <button
+                [disabled]="!workoutForm.form.valid"
+                class="button"
+                type="submit"
               >
+                Spara
+              </button>
+              <div class="has-text-info-light" *ngIf="workoutForm.submitted">
+                Sparat
+              </div>
             </div>
           </section>
         </form>
+      </section>
+      <section class="card mt-6">
+        <div class="card-content">
+          <h1 class="title">Historik</h1>
+          <div class="workouts">
+            <div
+              class="workout"
+              *ngFor="let workout of workoutService.workouts()"
+            >
+              <div class="card mb-4">
+                <div class="card-content">
+                  <h1 class="subtitle">{{ workout.type }}</h1>
+                  <p>{{ workout.date }}</p>
+                  <p>{{ workout.duration }} min</p>
+                  <p>{{ workout.comment }}</p>
+                </div>
+                <div class="card-footer">
+                  <button
+                    class="button"
+                    (click)="workoutService.removeWorkout(workout)"
+                  >
+                    Ta bort
+                  </button>
+                  <button class="button" (click)="editWorkout(workout)">
+                    Redigera
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
     </main>
   `,
   styles: [],
 })
 export class AppComponent implements OnInit {
-  workouts: Workout[] = [];
-
   workout: Workout = {};
 
+  previousPosition = 0;
   constructor(public workoutService: WorkoutService) {}
 
   async save() {
-    console.log(this.workout);
-    await this.workoutService.addWorkout(this.workout);
+    if (this.workout.id) {
+      await this.workoutService.editWorkout(this.workout);
+
+      console.log(this.previousPosition);
+      window.scrollTo(0, this.previousPosition);
+    } else {
+      await this.workoutService.addWorkout(this.workout);
+    }
+
+    this.clear();
   }
 
   clear() {
@@ -92,7 +136,13 @@ export class AppComponent implements OnInit {
     await this.workoutService.loadWorkouts();
   }
 
-  addWorkout($event: SubmitEvent) {
-    console.log($event);
+  editWorkout(workout: Workout) {
+    this.workout = workout;
+
+    this.previousPosition = window.scrollY;
+    console.log(this.previousPosition);
+
+    // go to top
+    window.scrollTo(0, 0);
   }
 }
