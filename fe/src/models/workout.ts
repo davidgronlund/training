@@ -2,6 +2,6 @@ export interface Workout {
   id: number;
   type: string;
   date: Date;
-  duration: number;
+  duration?: number;
   comment?: string;
 }

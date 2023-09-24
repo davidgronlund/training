@@ -18,28 +18,10 @@ export class WorkoutService {
 
   workouts: WritableSignal<Workout[]> = signal([]);
 
-  workoutsSource = computed(() => {
-    const workouts = this.orderBy('date');
-
-    this.workouts.set(workouts);
-
-    return this.workouts();
-  });
-
-  logger = effect(async () => {
-    const workouts = this.workouts();
-    console.log(workouts);
-  });
-
-  async loadWorkouts(): Promise<void> {
+  async loadWorkouts(): Promise<Workout[]> {
     const workouts = await this.dataService.load();
-
-    // order by date
-    workouts.sort((a, b) => {
-      return new Date(a.date).getTime() - new Date(b.date).getTime();
-    });
-
     this.workouts.set(workouts);
+    return this.workouts();
   }
 
   async addWorkout(workout: Workout) {
@@ -69,26 +51,30 @@ export class WorkoutService {
     return this.dataService.save(workouts);
   }
 
-  orderBy(type: string) {
-    const workouts = this.workouts();
-    if (type === 'date') {
-      workouts.sort(this.byDate);
-    } else {
-      workouts.sort(this.byDuration);
-    }
-
-    return workouts;
-  }
-
   orderByDuration() {
     this.workouts().sort(this.byDuration);
   }
 
   byDuration(a: Workout, b: Workout) {
-    return a.duration - b.duration;
+    if (a.duration && b.duration) {
+      return a.duration - b.duration;
+    }
+
+    return 0;
+  }
+
+  byDurationDescending(a: Workout, b: Workout) {
+    if (a.duration && b.duration) {
+      return b.duration - a.duration;
+    }
+    return 0;
   }
 
   byDate(a: Workout, b: Workout) {
     return new Date(a.date).getTime() - new Date(b.date).getTime();
+  }
+
+  byDateDescending(a: Workout, b: Workout) {
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
   }
 }

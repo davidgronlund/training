@@ -1,4 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  OnInit,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WorkoutService } from '../data/workout.service';
 import { FormsModule } from '@angular/forms';
@@ -80,14 +87,25 @@ import { HttpClientModule } from '@angular/common/http';
             <thead>
               <tr>
                 <th>Typ</th>
-                <th (click)="workoutService.orderBy('date')">Datum</th>
-                <th>Tid</th>
+                <th>
+                  <button class="has-text-link-dark" (click)="orderBy('date')">
+                    Datum
+                  </button>
+                </th>
+                <th>
+                  <button
+                    class="has-text-link-dark"
+                    (click)="orderBy('duration')"
+                  >
+                    Tid
+                  </button>
+                </th>
                 <th>Kommentar</th>
                 <th>Ändra</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let workout of workoutService.workouts()">
+              <tr *ngFor="let workout of workouts()">
                 <td>{{ workout.type }}</td>
                 <td>{{ workout.date }}</td>
                 <td>{{ workout.duration }} min</td>
@@ -149,9 +167,25 @@ import { HttpClientModule } from '@angular/common/http';
   styles: [],
 })
 export class AppComponent implements OnInit {
-  emptyWorkout: Workout = { date: new Date(), duration: 0, id: 0, type: '' };
+  emptyWorkout: Workout = {
+    date: new Date(),
+    duration: undefined,
+    id: 0,
+    type: '',
+  };
   workout: Workout = this.emptyWorkout;
   previousPosition: number = 0;
+
+  workouts: WritableSignal<Workout[]> = signal([]);
+
+  update = effect(
+    () => {
+      this.workoutService.workouts();
+
+      this.workouts.set(this.workoutService.workouts());
+    },
+    { allowSignalWrites: true }
+  );
   constructor(public workoutService: WorkoutService) {}
 
   async save() {
@@ -170,12 +204,49 @@ export class AppComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    await this.workoutService.loadWorkouts();
+    const workouts = await this.workoutService.loadWorkouts();
+    this.workouts.set(workouts);
+    this.orderBy('date');
   }
 
   editWorkout(workout: Workout): void {
     this.workout = workout;
     this.previousPosition = window.scrollY;
     window.scrollTo(0, 0);
+  }
+
+  currentSort = { type: '', descending: false };
+
+  orderBy(type: string) {
+    const workouts = this.workouts();
+    console.log(workouts);
+    if (type === 'date') {
+      if (this.currentSort.type === 'date' && !this.currentSort.descending) {
+        workouts.sort(this.workoutService.byDate);
+      } else {
+        workouts.sort(this.workoutService.byDateDescending);
+      }
+      this.currentSort = {
+        type: 'date',
+        descending: !this.currentSort.descending,
+      };
+    } else if (type === 'duration') {
+      if (
+        this.currentSort.type === 'duration' &&
+        !this.currentSort.descending
+      ) {
+        workouts.sort(this.workoutService.byDuration);
+      } else {
+        workouts.sort(this.workoutService.byDurationDescending);
+      }
+      this.currentSort = {
+        type: 'duration',
+        descending: !this.currentSort.descending,
+      };
+    }
+
+    console.log(workouts);
+
+    this.workouts.set(workouts);
   }
 }
