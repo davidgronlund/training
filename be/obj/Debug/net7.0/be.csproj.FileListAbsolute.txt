@@ -24,3 +24,4 @@
 /Users/dagr8080/code/training/be/obj/Debug/net7.0/be.pdb
 /Users/dagr8080/code/training/be/obj/Debug/net7.0/be.genruntimeconfig.cache
 /Users/dagr8080/code/training/be/obj/Debug/net7.0/ref/be.dll
+/Users/dagr8080/code/training/be/bin/Debug/net7.0/workouts.json

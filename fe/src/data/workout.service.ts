@@ -4,6 +4,7 @@ import {
   WritableSignal,
   effect,
   Signal,
+  computed,
 } from '@angular/core';
 import { DataService } from './data.service';
 import { Workout } from '../models/workout';
@@ -17,6 +18,14 @@ export class WorkoutService {
 
   workouts: WritableSignal<Workout[]> = signal([]);
 
+  workoutsSource = computed(() => {
+    const workouts = this.orderBy('date');
+
+    this.workouts.set(workouts);
+
+    return this.workouts();
+  });
+
   logger = effect(async () => {
     const workouts = this.workouts();
     console.log(workouts);
@@ -25,11 +34,12 @@ export class WorkoutService {
   async loadWorkouts(): Promise<void> {
     const workouts = await this.dataService.load();
 
-    this.workouts.set(workouts);
-  }
+    // order by date
+    workouts.sort((a, b) => {
+      return new Date(a.date).getTime() - new Date(b.date).getTime();
+    });
 
-  getWorkoutTypes(): string[] {
-    return this.workouts().map((workout) => <string>workout.type);
+    this.workouts.set(workouts);
   }
 
   async addWorkout(workout: Workout) {
@@ -57,5 +67,28 @@ export class WorkoutService {
 
   saveWorkouts(workouts: Workout[]) {
     return this.dataService.save(workouts);
+  }
+
+  orderBy(type: string) {
+    const workouts = this.workouts();
+    if (type === 'date') {
+      workouts.sort(this.byDate);
+    } else {
+      workouts.sort(this.byDuration);
+    }
+
+    return workouts;
+  }
+
+  orderByDuration() {
+    this.workouts().sort(this.byDuration);
+  }
+
+  byDuration(a: Workout, b: Workout) {
+    return a.duration - b.duration;
+  }
+
+  byDate(a: Workout, b: Workout) {
+    return new Date(a.date).getTime() - new Date(b.date).getTime();
   }
 }

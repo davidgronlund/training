@@ -23,23 +23,18 @@ export class DataService {
       type: 'application/json',
     });
 
-    // fetch
-
     await fetch(`${this.apiUrl}/workouts`, {
       method: 'POST',
       body: blob,
       headers: {
         'Content-Type': 'application/json',
-      }
+      },
     });
-
-/*    this.http.post(`${this.apiUrl}/workouts`, blob);*/
   }
 
   async load(): Promise<Workout[]> {
     const response: Response = await fetch(`${this.apiUrl}/workouts`);
     const json = await response.json();
-    console.log(json);
     return json as Workout[];
   }
 }

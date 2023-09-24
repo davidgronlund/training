@@ -74,7 +74,46 @@ import { HttpClientModule } from '@angular/common/http';
           </section>
         </form>
       </section>
-      <section class="card mt-6">
+      <section class="card">
+        <div class="card-content">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Typ</th>
+                <th (click)="workoutService.orderBy('date')">Datum</th>
+                <th>Tid</th>
+                <th>Kommentar</th>
+                <th>Ändra</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let workout of workoutService.workouts()">
+                <td>{{ workout.type }}</td>
+                <td>{{ workout.date }}</td>
+                <td>{{ workout.duration }} min</td>
+                <td>{{ workout.comment }}</td>
+                <td>
+                  <div class="is-flex-wrap-nowrap">
+                    <i
+                      class="button is-primary fa fa-pencil"
+                      (click)="editWorkout(workout)"
+                    >
+                      Redigera
+                    </i>
+                    <button
+                      class="button is-danger fa fa-trash"
+                      (click)="workoutService.removeWorkout(workout)"
+                    >
+                      Ta bort
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <!--      <section class="card mt-6">
         <div class="card-content">
           <h1 class="title">Historik</h1>
           <div class="workouts">
@@ -104,22 +143,20 @@ import { HttpClientModule } from '@angular/common/http';
             </div>
           </div>
         </div>
-      </section>
+      </section>-->
     </main>
   `,
   styles: [],
 })
 export class AppComponent implements OnInit {
-  workout: Workout = {};
-
-  previousPosition = 0;
+  emptyWorkout: Workout = { date: new Date(), duration: 0, id: 0, type: '' };
+  workout: Workout = this.emptyWorkout;
+  previousPosition: number = 0;
   constructor(public workoutService: WorkoutService) {}
 
   async save() {
     if (this.workout.id) {
       await this.workoutService.editWorkout(this.workout);
-
-      console.log(this.previousPosition);
       window.scrollTo(0, this.previousPosition);
     } else {
       await this.workoutService.addWorkout(this.workout);
@@ -128,21 +165,17 @@ export class AppComponent implements OnInit {
     this.clear();
   }
 
-  clear() {
-    this.workout = {};
+  clear(): void {
+    this.workout = this.emptyWorkout;
   }
 
   async ngOnInit(): Promise<void> {
     await this.workoutService.loadWorkouts();
   }
 
-  editWorkout(workout: Workout) {
+  editWorkout(workout: Workout): void {
     this.workout = workout;
-
     this.previousPosition = window.scrollY;
-    console.log(this.previousPosition);
-
-    // go to top
     window.scrollTo(0, 0);
   }
 }
