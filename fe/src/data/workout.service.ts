@@ -56,16 +56,11 @@ export class WorkoutService {
   }
 
   getWeek(date: Date): number {
-    // if type of date is not Date
     date = this.convertToDate(date);
-
     date = new Date(date.getTime());
     date.setHours(0, 0, 0, 0);
-    // Thursday in current week decides the year.
     date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
-    // January 4 is always in week 1.
-    var week1 = new Date(date.getFullYear(), 0, 4);
-    // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+    const week1 = new Date(date.getFullYear(), 0, 4);
     return (
       1 +
       Math.round(
@@ -134,8 +129,14 @@ export class WorkoutService {
     }
 
     return workouts
-      .filter((workout) => workout.duration)
+      .filter((workout) => workout.duration !== undefined)
       .reduce((acc, workout) => acc + <number>workout.duration, 0);
+  }
+
+  minutesToHours(duration: number): string {
+    const hours = Math.floor(duration / 60);
+    const minutes = duration % 60;
+    return `${hours}h ${minutes}m`;
   }
 
   byDuration(a: Workout, b: Workout) {

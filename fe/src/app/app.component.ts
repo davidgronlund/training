@@ -86,6 +86,14 @@ import { HttpClientModule } from '@angular/common/http';
               >År {{ workoutPerYear.year }}</span
             >
             <div>Antal pass: {{ workoutPerYear.workouts.length }}</div>
+            <div>
+              Total tid:
+              {{
+                workoutService.minutesToHours(
+                  workoutService.getTotalDuration(workoutPerYear.workouts)
+                )
+              }}
+            </div>
           </div>
         </div>
       </div>
@@ -101,7 +109,11 @@ import { HttpClientModule } from '@angular/common/http';
             <div>Antal pass: {{ workoutPerWeek.workouts.length }}</div>
             <div>
               Total tid:
-              {{ workoutService.getTotalDuration(workoutPerWeek.workouts) }}
+              {{
+                workoutService.minutesToHours(
+                  workoutService.getTotalDuration(workoutPerWeek.workouts)
+                )
+              }}
             </div>
           </div>
         </div>
