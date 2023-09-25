@@ -108,6 +108,26 @@ export class WorkoutService {
     return workoutsPerWeek;
   }
 
+  groupWorkoutsPerYear(): WorkoutsPerYear[] {
+    const workoutsPerYear: WorkoutsPerYear[] = [];
+    const workouts = this.workouts().sort(this.byDateDescending);
+
+    workouts.forEach((workout) => {
+      const date = this.convertToDate(workout.date);
+      const year = date.getFullYear();
+      if (workoutsPerYear[year]) {
+        workoutsPerYear[year].workouts.push(workout);
+      } else {
+        workoutsPerYear[year] = {
+          workouts: [workout],
+          year: date.getFullYear(),
+        };
+      }
+    });
+
+    return workoutsPerYear;
+  }
+
   getTotalDuration(workouts: Workout[]): number {
     if (workouts.length === 0) {
       return 0;
@@ -146,4 +166,9 @@ interface WorkoutsPerWeek {
   workouts: Workout[];
   week: number;
   year?: number;
+}
+
+interface WorkoutsPerYear {
+  workouts: Workout[];
+  year: number;
 }

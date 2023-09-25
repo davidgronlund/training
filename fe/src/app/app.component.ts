@@ -77,7 +77,18 @@ import { HttpClientModule } from '@angular/common/http';
           </div>
         </form>
       </section>
-
+      <div class="mt-6">
+        <div
+          *ngFor="let workoutPerYear of workoutService.groupWorkoutsPerYear()"
+        >
+          <div class="workout-per-year" *ngIf="workoutPerYear">
+            <span class="has-text-weight-bold"
+              >År {{ workoutPerYear.year }}</span
+            >
+            <div>Antal pass: {{ workoutPerYear.workouts.length }}</div>
+          </div>
+        </div>
+      </div>
       <div class="mt-6">
         <div
           class=""
